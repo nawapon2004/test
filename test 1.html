@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  </head>
+  <title> TEST NETPIE2020 by saksri senalai</title>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
+        <style>
+            .button {
+              background-color: #4CAF50; /* Green */
+              border: none;
+              color: white;
+              padding: 15px 32px;
+              text-align: center;
+              text-decoration: none;
+              display: inline-block;
+              font-size: 16px;
+              margin: 4px 2px;
+              cursor: pointer;
+              -webkit-transition-duration: 0.4s; /* Safari */
+              transition-duration: 0.4s;
+            }
+            
+            .button3 {
+              background-color: #FF6600; /* Green */
+              border: none;
+              color: white;
+              padding: 15px 32px;
+              text-align: center;
+              text-decoration: none;
+              display: inline-block;
+              font-size: 18px;
+              margin: 4px 2px;
+              cursor: pointer;
+              -webkit-transition-duration: 0.4s; /* Safari */
+              transition-duration: 0.4s;
+            }
+            
+            .button1 {
+              box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+            }
+            
+            .button2:hover {
+              box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+            }
+
+            /* SWITCH */
+            body {
+	text-align: center;
+}
+.cube-switch {
+    border-radius:10px;
+    border:1px solid rgba(0,0,0,0.4);
+    box-shadow: 0 0 8px rgba(0,0,0,0.6), inset 0 100px 50px rgba(255,255,255,0.1);
+    /* Prevents clics on the back */
+    cursor:default;    
+    display: none;
+    height: 75px;
+    position: relative;
+    overflow:hidden;
+    /* Prevents clics on the back */
+    pointer-events:none;
+    width: 75px;
+    white-space: nowrap;
+    background:#333;
+	margin: 15px;
+}
+/* The switch */
+.cube-switch .switch {
+    border:1px solid rgba(0,0,0,0.6);
+    border-radius:0.7em;
+    box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.3),
+    inset 0 -7px 0 rgba(0,0,0,0.2),
+    inset 0 50px 10px rgba(0,0,0,0.2),
+    0 1px 0 rgba(255,255,255,0.2);
+    display:block;
+    width: 60px;
+    height: 60px;
+    margin-left:-30px;
+    margin-top:-30px;
+    position:absolute;
+    top: 50%;
+    left: 50%;
+    width: 60px;
+ 
+    background:#666;
+    transition: all 0.2s ease-out;
+    /* Allows click */
+    cursor:pointer;
+    pointer-events:auto;
+}
+/* SWITCH Active State */
+.cube-switch.active {
+   background:#222;
+    box-shadow:
+    0 0 5px rgba(0,0,0,0.5),
+    inset 0 50px 50px rgba(55,55,55,0.1);
+}
+
+
+
+.cube-switch.nonactive .switch {
+    background:#c0c0c0;
+    box-shadow:
+    inset 0 6px 0 rgba(255,255,255,0.1),
+    inset 0 7px 0 rgba(0,0,0,0.2),
+    inset 0 -50px 10px rgba(0,0,0,0.1),
+    0 1px 0 rgba(205,205,205,0.1);
+}
+.cube-switch.active .switch {
+    background:#ff0000; 
+    box-shadow:
+    inset 0 6px 0 rgba(255,255,255,0.1),
+    inset 0 7px 0 rgba(0,0,0,0.2),
+    inset 0 -50px 10px rgba(0,0,0,0.1),
+    0 1px 0 rgba(205,205,205,0.1);
+}
+.cube-switch.active:after,
+.cube-switch.active:before {
+    background:#ff0000;  
+    box-shadow:
+    0 1px 0 rgba(255,255,255,0.1),
+    inset 1px 2px 1px rgba(0,0,0,0.5),
+    inset 3px 6px 2px rgba(200,200,200,0.1),
+    inset -1px -2px 1px rgba(0,0,0,0.3);
+}
+.cube-switch.active .switch:after,
+.cube-switch.active .switch:before {
+    background:#222;
+    border:none;
+    margin-top:0;
+    height:1px;
+}
+.cube-switch .switch-state {
+    display: block;
+    position: absolute;
+    left: 40%;
+    color: #FFF;
+    font-size: .5em;
+    text-align: center;
+}
+/* SWITCH On State */
+.cube-switch .switch-state.on {
+    bottom: 15%;
+}
+/* SWITCH Off State */
+.cube-switch .switch-state.off {
+    top: 15%;
+}
+            </style>
+  
+  <script>
+
+client = new Paho.MQTT.Client("mqtt.netpie.io", 443, "345f56fc-0fcc-48a3-926f-7ccca864b0f2");
+client.onMessageArrived = onMessageArrived;
+ 
+var options = {
+  useSSL: true,
+  userName : "nyugQEVQPUNrZYCxwZZJ3XoR5BCx8oax", 
+  password : "QZtQe69gWm9WtnFQPk22C8Czu7YpvYwF",  
+  onSuccess: onConnect,
+  onFailure:doFail,
+}
+
+client.connect(options);
+
+
+
+
+function onConnect() {
+  client.subscribe("@msg/led");
+        
+  document.getElementById("cube-switch").className = "cube-switch nonactive";
+		document.getElementById("cube-switch").style.display = "block";
+       
+    document.getElementById("cube-switch1").className = "cube-switch nonactive";
+		document.getElementById("cube-switch1").style.display = "block";
+       
+    document.getElementById("cube-switch").className = "cube-switch nonactive";
+		document.getElementById("cube-switch").style.display = "block";
+       
+    document.getElementById("cube-switch2").className = "cube-switch nonactive";
+		document.getElementById("cube-switch2").style.display = "block";
+       
+    document.getElementById("cube-switch3").className = "cube-switch nonactive";
+		document.getElementById("cube-switch3").style.display = "block";
+
+
+    document.getElementById("cube-switch21").className = "cube-switch nonactive";
+		document.getElementById("cube-switch21").style.display = "block";
+       
+    document.getElementById("cube-switch22").className = "cube-switch nonactive";
+		document.getElementById("cube-switch22").style.display = "block";
+         
+    document.getElementById("cube-switch23").className = "cube-switch nonactive";
+		document.getElementById("cube-switch23").style.display = "block";
+       
+    document.getElementById("cube-switch24").className = "cube-switch nonactive";
+		document.getElementById("cube-switch24").style.display = "block";
+
+    
+    document.getElementById("cube-switch31").className = "cube-switch nonactive";
+		document.getElementById("cube-switch31").style.display = "block";
+       
+    document.getElementById("cube-switch32").className = "cube-switch nonactive";
+		document.getElementById("cube-switch32").style.display = "block";
+         
+    document.getElementById("cube-switch33").className = "cube-switch nonactive";
+		document.getElementById("cube-switch33").style.display = "block";
+       
+    document.getElementById("cube-switch34").className = "cube-switch nonactive";
+		document.getElementById("cube-switch34").style.display = "block";
+
+    
+    document.getElementById("cube-switch41").className = "cube-switch nonactive";
+		document.getElementById("cube-switch41").style.display = "block";
+       
+    document.getElementById("cube-switch42").className = "cube-switch nonactive";
+		document.getElementById("cube-switch42").style.display = "block";
+         
+    document.getElementById("cube-switch43").className = "cube-switch nonactive";
+		document.getElementById("cube-switch43").style.display = "block";
+       
+    document.getElementById("cube-switch44").className = "cube-switch nonactive";
+		document.getElementById("cube-switch44").style.display = "block";
+
+
+
+  // mqttSend("@msg/led", "001GET");  
+ mqttSend("@msg/led", "001GET");  
+ mqttSend("@msg/led", "002GET");  
+ mqttSend("@msg/led", "003GET");  
+ mqttSend("@msg/led", "004GET");  
+
+
+}
+
+
+function switchPress(){
+		if(document.getElementById("cube-switch").className == "cube-switch active"){
+      mqttSend("@msg/led", "001"+"AOFF"); 
+		}else if(document.getElementById("cube-switch").className == "cube-switch"){
+      mqttSend("@msg/led", "001"+"AON"); 
+		}
+	}
+
+  function switchPress1(){
+		if(document.getElementById("cube-switch1").className == "cube-switch active"){
+      mqttSend("@msg/led", "001BOFF"); 
+		}else if(document.getElementById("cube-switch1").className == "cube-switch"){
+      mqttSend("@msg/led", "001BON"); 
+		}
+	}
+
+  function switchPress2(){
+		if(document.getElementById("cube-switch2").className == "cube-switch active"){
+      mqttSend("@msg/led", "001COFF"); 
+		}else if(document.getElementById("cube-switch2").className == "cube-switch"){
+      mqttSend("@msg/led", "001CON"); 
+		}
+	}
+  function switchPress3(){
+		if(document.getElementById("cube-switch3").className == "cube-switch active"){
+      mqttSend("@msg/led", "001DOFF"); 
+		}else if(document.getElementById("cube-switch3").className == "cube-switch"){
+      mqttSend("@msg/led", "001DON"); 
+		}
+	}
+
+
+  
+
+function switchPress21(){
+		if(document.getElementById("cube-switch21").className == "cube-switch active"){
+      mqttSend("@msg/led", "002AOFF"); 
+		}else if(document.getElementById("cube-switch21").className == "cube-switch"){
+      mqttSend("@msg/led", "002AON"); 
+		}
+	}
+
+  function switchPress22(){
+		if(document.getElementById("cube-switch22").className == "cube-switch active"){
+      mqttSend("@msg/led", "002BOFF"); 
+		}else if(document.getElementById("cube-switch22").className == "cube-switch"){
+      mqttSend("@msg/led", "002BON"); 
+		}
+	}
+
+  function switchPress23(){
+		if(document.getElementById("cube-switch23").className == "cube-switch active"){
+      mqttSend("@msg/led", "002COFF"); 
+		}else if(document.getElementById("cube-switch23").className == "cube-switch"){
+      mqttSend("@msg/led", "002CON"); 
+		}
+	}
+  function switchPress24(){
+		if(document.getElementById("cube-switch24").className == "cube-switch active"){
+      mqttSend("@msg/led", "002DOFF"); 
+		}else if(document.getElementById("cube-switch24").className == "cube-switch"){
+      mqttSend("@msg/led", "002DON"); 
+		}
+	}
+
+
+
+
+  function switchPress31(){
+		if(document.getElementById("cube-switch31").className == "cube-switch active"){
+      mqttSend("@msg/led", "003AOFF"); 
+		}else if(document.getElementById("cube-switch31").className == "cube-switch"){
+      mqttSend("@msg/led", "003AON"); 
+		}
+	}
+
+  function switchPress32(){
+		if(document.getElementById("cube-switch32").className == "cube-switch active"){
+      mqttSend("@msg/led", "003BOFF"); 
+		}else if(document.getElementById("cube-switch32").className == "cube-switch"){
+      mqttSend("@msg/led", "003BON"); 
+		}
+	}
+
+  function switchPress33(){
+		if(document.getElementById("cube-switch33").className == "cube-switch active"){
+      mqttSend("@msg/led", "003COFF"); 
+		}else if(document.getElementById("cube-switch33").className == "cube-switch"){
+      mqttSend("@msg/led", "003CON"); 
+		}
+	}
+  function switchPress34(){
+		if(document.getElementById("cube-switch34").className == "cube-switch active"){
+      mqttSend("@msg/led", "003DOFF"); 
+		}else if(document.getElementById("cube-switch34").className == "cube-switch"){
+      mqttSend("@msg/led", "003DON"); 
+		}
+	}
+
+  
+
+function switchPress41(){
+		if(document.getElementById("cube-switch41").className == "cube-switch active"){
+      mqttSend("@msg/led", "004AOFF"); 
+		}else if(document.getElementById("cube-switch41").className == "cube-switch"){
+      mqttSend("@msg/led", "004AON"); 
+		}
+	}
+
+  function switchPress42(){
+		if(document.getElementById("cube-switch42").className == "cube-switch active"){
+      mqttSend("@msg/led", "004BOFF"); 
+		}else if(document.getElementById("cube-switch42").className == "cube-switch"){
+      mqttSend("@msg/led", "004BON"); 
+		}
+	}
+
+  function switchPress43(){
+		if(document.getElementById("cube-switch43").className == "cube-switch active"){
+      mqttSend("@msg/led", "004COFF"); 
+		}else if(document.getElementById("cube-switch43").className == "cube-switch"){
+      mqttSend("@msg/led", "004CON"); 
+		}
+	}
+  function switchPress44(){
+		if(document.getElementById("cube-switch44").className == "cube-switch active"){
+      mqttSend("@msg/led", "004DOFF"); 
+		}else if(document.getElementById("cube-switch44").className == "cube-switch"){
+      mqttSend("@msg/led", "004DON"); 
+		}
+	}
+
+
+ 
+ 
+
+function doFail(e){
+    console.log(e);
+  }
+
+function onMessageArrived(message) { 
+  //alert(message.payloadString);
+  document.getElementById("show2").innerHTML =message.payloadString;
+if(message.payloadString.substring(0,6)=='0011ON'){
+			document.getElementById("cube-switch").className = "cube-switch active";
+		}else if(message.payloadString.substring(0,7)=='0011OFF'){
+			document.getElementById("cube-switch").className = "cube-switch";
+		}
+ 
+    if(message.payloadString.substring(0,6)=='0012ON'){
+			document.getElementById("cube-switch1").className = "cube-switch active";
+		}else if(message.payloadString.substring(0,7)=='0012OFF'){
+			document.getElementById("cube-switch1").className = "cube-switch";
+		}
+
+    if(message.payloadString.substring(0,6)=='0013ON'){
+			document.getElementById("cube-switch2").className = "cube-switch active";
+		}else if(message.payloadString.substring(0,7)=='0013OFF'){
+			document.getElementById("cube-switch2").className = "cube-switch";
+		}
+
+    if(message.payloadString.substring(0,6)=='0014ON'){
+			document.getElementById("cube-switch3").className = "cube-switch active";
+		}else if(message.payloadString.substring(0,7)=='0014OFF'){
+			document.getElementById("cube-switch3").className = "cube-switch";
+		}
+
+//-------------------------------------------------------------------------------------
+    
+if(message.payloadString.substring(0,6)=='0021ON'){
+			document.getElementById("cube-switch21").className = "cube-switch active";
+		}else if(message.payloadString.substring(0,7)=='0021OFF'){
+			document.getElementById("cube-switch21").className = "cube-switch";
+		}
+ 
+    if(message.payloadString.substring(0,6)=='0022ON'){
+			document.getElementById("cube-switch22").className = "cube-switch active";
+		}else if(message.payloadString.substring(0,7)=='0022OFF'){
+			document.getElementById("cube-switch22").className = "cube-switch";
+		}
+
+    if(message.payloadString.substring(0,6)=='0023ON'){
+			document.getElementById("cube-switch23").className = "cube-switch active";
+		}else if(message.payloadString.substring(0,7)=='0023OFF'){
+			document.getElementById("cube-switch23").className = "cube-switch";
+		}
+
+    if(message.payloadString.substring(0,6)=='0024ON'){
+			document.getElementById("cube-switch24").className = "cube-switch active";
+		}else if(message.payloadString.substring(0,7)=='0024OFF'){
+			document.getElementById("cube-switch24").className = "cube-switch";
+		}
+
+    if(message.payloadString.substring(0,5)=='002S1')
+	      document.getElementById("sak21").innerHTML =message.payloadString.substring(5,29);
+    if(message.payloadString.substring(0,5)=='002S2')
+	      document.getElementById("sak22").innerHTML =message.payloadString.substring(5,29);
+    if(message.payloadString.substring(0,5)=='002S3')
+	      document.getElementById("sak23").innerHTML =message.payloadString.substring(5,29);
+    if(message.payloadString.substring(0,5)=='002S4')
+	      document.getElementById("sak24").innerHTML =message.payloadString.substring(5,29);
+
+      //  document.getElementById("sak12").innerHTML =data[0];
+   
+//-----------------------------------------------------------------------------------------
+    
+    
+if(message.payloadString.substring(0,6)=='0031ON'){
+			document.getElementById("cube-switch31").className = "cube-switch active";
+		}else if(message.payloadString.substring(0,7)=='0031OFF'){
+			document.getElementById("cube-switch31").className = "cube-switch";
+		}
+ 
+    if(message.payloadString.substring(0,6)=='0032ON'){
+			document.getElementById("cube-switch32").className = "cube-switch active";
+		}else if(message.payloadString.substring(0,7)=='0032OFF'){
+			document.getElementById("cube-switch32").className = "cube-switch";
+		}
+
+    if(message.payloadString.substring(0,6)=='0033ON'){
+			document.getElementById("cube-switch33").className = "cube-switch active";
+		}else if(message.payloadString.substring(0,7)=='0033OFF'){
+			document.getElementById("cube-switch33").className = "cube-switch";
+		}
+
+    if(message.payloadString.substring(0,6)=='0034ON'){
+			document.getElementById("cube-switch34").className = "cube-switch active";
+		}else if(message.payloadString.substring(0,7)=='0034OFF'){
+			document.getElementById("cube-switch34").className = "cube-switch";
+		}
+
+
+ //---------------------------------------------------------------------------------------------   
+    
+if(message.payloadString.substring(0,6)=='0041ON'){
+			document.getElementById("cube-switch41").className = "cube-switch active";
+		}else if(message.payloadString.substring(0,7)=='0041OFF'){
+			document.getElementById("cube-switch41").className = "cube-switch";
+		}
+ 
+    if(message.payloadString.substring(0,6)=='0042ON'){
+			document.getElementById("cube-switch42").className = "cube-switch active";
+		}else if(message.payloadString.substring(0,7)=='0042OFF'){
+			document.getElementById("cube-switch42").className = "cube-switch";
+		}
+
+    if(message.payloadString.substring(0,6)=='0043ON'){
+			document.getElementById("cube-switch43").className = "cube-switch active";
+		}else if(message.payloadString.substring(0,7)=='0043OFF'){
+			document.getElementById("cube-switch43").className = "cube-switch";
+		}
+
+    if(message.payloadString.substring(0,6)=='0044ON'){
+			document.getElementById("cube-switch44").className = "cube-switch active";
+		}else if(message.payloadString.substring(0,7)=='0044OFF'){
+			document.getElementById("cube-switch44").className = "cube-switch";
+		}
+
+}
+var mqttSend = function(topic, msg) {
+    var message = new Paho.MQTT.Message(msg);
+    message.destinationName = topic;
+    client.send(message);
+
+ //   document.getElementById("show2").innerHTML =message.payloadString;
+}
+
+</script>
+
+<body>  
+      
+
+<table border="1" cellpadding="0" cellspacing="0" >
+	<tr bgcolor="#FFFF66"><td colspan="5"> <h2> โปรแกรมควบคุมเปิด ปิด อุปกรณ์ไฟฟ้า (IOT with netpie 2020)</h2></td></tr>
+
+	<tr  bgcolor="#66FF66"><td colspan="5"> <h2> อุปกรณ์ชุดที่ 1</h2></td></tr>
+
+
+  <tr><td>ชื่ออุปกรณ์ชุดที่ 11
+
+	<div href="" class="cube-switch" id="cube-switch" onclick="switchPress()">
+		<span class="switch">
+			<span class="switch-state off">Off</span>
+			<span class="switch-state on">On</span>
+		</span>
+    </div>
+   </td><td> ชื่ออุปกรณ์ชุดที่ 12
+
+    <div href="" class="cube-switch" id="cube-switch1" onclick="switchPress1()">
+		<span class="switch">
+			<span class="switch-state off">Off</span>
+			<span class="switch-state on">On</span>
+		</span>
+    </div>
+</td><td>ชื่ออุปกรณ์ชุดที่ 13
+       <div href="" class="cube-switch" id="cube-switch2" onclick="switchPress2()">
+		<span class="switch">
+			<span class="switch-state off">Off</span>
+			<span class="switch-state on">On</span>
+		</span>
+    </div>
+</td><td>ชื่ออุปกรณ์ชุดที่ 14
+    <div href="" class="cube-switch" id="cube-switch3" onclick="switchPress3()">
+		<span class="switch">
+			<span class="switch-state off">Off</span>
+			<span class="switch-state on">On</span>
+		</span>
+    </div>
+    
+</td> 
+<td>
+	<div id="show2" >    </div>   
+	<div id="sak11" >   </div> 
+	<div id="sak12" >   </div> 
+	<div id="sak13" >   </div> 
+	<div id="sak14" >   </div> 
+</td> 
+
+
+
+</tr>  
+<tr bgcolor="#66FF66"><td colspan="5"> <h2> อุปกรณ์ชุดที่ 2</h2></td></tr>
+<tr><td>ชื่ออุปกรณ์ชุดที่ 21
+
+	<div href="" class="cube-switch" id="cube-switch21" onclick="switchPress21()">
+		<span class="switch">
+			<span class="switch-state off">Off</span>
+			<span class="switch-state on">On</span>
+		</span>
+    </div>
+   </td><td> ชื่ออุปกรณ์ชุดที่ 22
+
+    <div href="" class="cube-switch" id="cube-switch22" onclick="switchPress22()">
+		<span class="switch">
+			<span class="switch-state off">Off</span>
+			<span class="switch-state on">On</span>
+		</span>
+    </div>
+</td><td>ชื่ออุปกรณ์ชุดที่ 23
+       <div href="" class="cube-switch" id="cube-switch23" onclick="switchPress23()">
+		<span class="switch">
+			<span class="switch-state off">Off</span>
+			<span class="switch-state on">On</span>
+		</span>
+    </div>
+</td><td>ชื่ออุปกรณ์ชุดที่ 24
+    <div href="" class="cube-switch" id="cube-switch24" onclick="switchPress24()">
+		<span class="switch">
+			<span class="switch-state off">Off</span>
+			<span class="switch-state on">On</span>
+		</span>
+    </div>
+    
+</td> 
+<td>
+	<div id="sak21" >    </div>   
+	<div id="sak22" >   </div> 
+	<div id="sak23" >   </div> 
+	<div id="sak24" >   </div> 
+	<div id="sak25" >   </div> 
+</td> 
+
+
+
+</tr>  
+
+<tr bgcolor="#66FF66"><td colspan="5"> <h2> อุปกรณ์ชุดที่ 3</h2></td></tr>
+<tr><td>ชื่ออุปกรณ์ชุดที่ 31
+
+	<div href="" class="cube-switch" id="cube-switch31" onclick="switchPress31()">
+		<span class="switch">
+			<span class="switch-state off">Off</span>
+			<span class="switch-state on">On</span>
+		</span>
+    </div>
+   </td><td> ชื่ออุปกรณ์ชุดที่ 32
+
+    <div href="" class="cube-switch" id="cube-switch32" onclick="switchPress32()">
+		<span class="switch">
+			<span class="switch-state off">Off</span>
+			<span class="switch-state on">On</span>
+		</span>
+    </div>
+</td><td>ชื่ออุปกรณ์ชุดที่ 33
+       <div href="" class="cube-switch" id="cube-switch33" onclick="switchPress33()">
+		<span class="switch">
+			<span class="switch-state off">Off</span>
+			<span class="switch-state on">On</span>
+		</span>
+    </div>
+</td><td>ชื่ออุปกรณ์ชุดที่ 34
+    <div href="" class="cube-switch" id="cube-switch34" onclick="switchPress34()">
+		<span class="switch">
+			<span class="switch-state off">Off</span>
+			<span class="switch-state on">On</span>
+		</span>
+    </div>
+    
+</td> 
+<td>
+	<div id="sak31" >    </div>   
+	<div id="sak32" >   </div> 
+	<div id="sak33" >   </div> 
+	<div id="sak34" >   </div> 
+	<div id="sak35" >   </div> 
+</td> 
+
+
+
+</tr>  
+<tr bgcolor="#66FF66"><td colspan="5"> <h2> อุปกรณ์ชุดที่ 4</h2></td></tr>
+<tr><td>ชื่ออุปกรณ์ชุดที่ 41
+
+	<div href="" class="cube-switch" id="cube-switch41" onclick="switchPress41()">
+		<span class="switch">
+			<span class="switch-state off">Off</span>
+			<span class="switch-state on">On</span>
+		</span>
+    </div>
+   </td><td> ชื่ออุปกรณ์ชุดที่ 42
+
+    <div href="" class="cube-switch" id="cube-switch42" onclick="switchPress42()">
+		<span class="switch">
+			<span class="switch-state off">Off</span>
+			<span class="switch-state on">On</span>
+		</span>
+    </div>
+</td><td>ชื่ออุปกรณ์ชุดที่ 43
+       <div href="" class="cube-switch" id="cube-switch43" onclick="switchPress43()">
+		<span class="switch">
+			<span class="switch-state off">Off</span>
+			<span class="switch-state on">On</span>
+		</span>
+    </div>
+</td><td>ชื่ออุปกรณ์ชุดที่ 44
+    <div href="" class="cube-switch" id="cube-switch44" onclick="switchPress44()">
+		<span class="switch">
+			<span class="switch-state off">Off</span>
+			<span class="switch-state on">On</span>
+		</span>
+    </div>
+    
+</td> 
+<td>
+	<div id="show" >    </div>   
+	<div id="sak42" >   </div> 
+	<div id="sak43" >   </div> 
+	<div id="sak44" >   </div> 
+	<div id="sak45" >   </div> 
+</td> 
+
+
+
+</tr>  
+
+
+<tr><td colspan=4 align="center"  bgcolor="#FFFFFF">    <div id="sak" >
+    <a href=nodemcu_esp8266.txt> exp :source code nodemcu esp8266</a>  NODEMCU 001 <br>   
+     
+    <iframe width="940" height="500"
+     src="nodemcu_esp8266.txt" title="YouTube video player" frameborder="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="">
+  </iframe>
+  <br>
+  
+  <a href=nodemcu_esp8266.txt> exp :source code nodemcu esp8266</a>  NODEMCU 002 <br>   
+     
+  <iframe width="940" height="500"
+   src="nodemcu_esp8266_2.txt" title="YouTube video player" frameborder="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="">
+</iframe>
+<br>
+
+  
+  <hr>
+   <a href=webpage_html.txt> exp :source code webpage_html</a>  <br>
+    <iframe width="940" height="500"
+    src="webpage_html.txt" title="YouTube video player" frameborder="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="">
+ </iframe>
+ <br><hr>
+  </div> 
+                       
+  <iframe width="927" height="409" src="https://www.youtube.com/embed/lB7qo63YeFs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>        
+                       </td></tr>
+</table>
+
+</body>
+</html>
